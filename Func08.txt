@@ -1,0 +1,74 @@
+Homework8:Consider partition on function:
+
+partition :: (a -> Bool) -> [a] -> ([a], [a])
+partition p [] = ([], [])
+partition p (x:xs)
+  | p x       = (x:l, r)
+  | otherwise = (l, x:r)
+  where (l, r) = partition p xs
+
+1.1)what's the type of partition?
+partition ::(a -> Bool) -> [a] -> ([a], [a])
+
+1.2)what does partition do?
+partition splits a list into two sublists
+based on whether elements satisfy the predicate (True) or not (False)
+
+2.)rewrite filter using partition
+hint: see fst and snd functions
+filter :: (a -> Bool) -> [a] -> [a]
+filter p xs = fst (partition p xs)
+
+3)rewrite quicksort without using list comprehension
+hint: modify the version with where
+hint: use partition
+quicksort :: (Ord a) => [a] -> [a]
+quicksort [] = []
+quicksort (x:xs) = quicksort left ++ [x] ++ quicksort right
+  where (left, right) = partition (<= x) xs
+
+4.)look up type Ordering
+4.1) what is it for?
+Ordering is a type used in comparisons. It’s the result type of the compare
+
+4.2)how many constructors are there?
+ 3 constructor
+-Less Than
+-Equal
+-Greater Than
+
+4.3)how many ways can we pattern-match an Ordering value?
+compare :: Ord a => a -> a -> Ordering
+case compare x y of
+  LT -> -- x is less than y
+  EQ -> -- x is equal to y
+  GT -> -- x is greater than y
+
+5.)write function gpa that computes grade-point
+average from a given list of letter grades
+5.1)what's the type of gpa?
+gpa :: [String] -> Float
+
+5.2)assume that possible grades are A, B+, B, C+, C, D+, D, F, W (W grades don't count)
+assume (for now) that every course has the same credits
+
+gradeToPoint :: String -> Maybe Float
+gradeToPoint "A"  = Just 4.0
+gradeToPoint "B+" = Just 3.5
+gradeToPoint "B"  = Just 3.0
+gradeToPoint "C+" = Just 2.5
+gradeToPoint "C"  = Just 2.0
+gradeToPoint "D+" = Just 1.5
+gradeToPoint "D"  = Just 1.0
+gradeToPoint "F"  = Just 0.0
+gradeToPoint "W"  = Nothing -- "W" doesn't count
+gradeToPoint _    = Nothing
+
+5.3)be sure to write small but reusable units of code
+gpa :: [String] -> Float
+gpa grades = totalPoints / fromIntegral validCount
+  where
+    points = map gradeToPoint grades
+    validPoints = filterValidPoints points
+    validCount = length validPoints
+    totalPoints = sum validPoints
